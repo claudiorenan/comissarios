@@ -1,0 +1,18 @@
+# PDF source files
+data/
+
+# Generated output
+output/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+Thumbs.db
+.DS_Store

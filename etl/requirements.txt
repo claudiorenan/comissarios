@@ -1,0 +1,5 @@
+# ETL PDF → Markdown para Simulados de Comissários
+PyMuPDF>=1.23.0       # Extração PDF com suporte a tabelas
+marker-pdf>=0.3.0     # Extração avançada via ML (opcional)
+python-slugify>=8.0   # Geração de slugs para nomes de arquivo
+pyyaml>=6.0           # Serialização YAML para frontmatter
