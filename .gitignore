@@ -1,8 +1,11 @@
 # PDF source files
-data/
+data/pdfs/
 
-# Generated output
-output/
+# Generated output (keep chunks for runtime)
+output/chapters/
+
+# Secrets
+.env
 
 # Python
 __pycache__/
