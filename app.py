@@ -112,18 +112,47 @@ if not st.session_state["authenticated"]:
 
     st.divider()
 
-    if st.button("Entrar", type="primary", use_container_width=True):
+    if st.button("Avançar", type="primary", use_container_width=True):
         if password != APP_PASSWORD:
             st.error("Senha incorreta.")
         elif not login_api_key:
             st.error("Informe a API Key.")
         elif not st.session_state["api_tested"]:
-            st.warning("Teste a API antes de entrar.")
+            st.warning("Teste a API antes de avançar.")
         else:
             st.session_state["authenticated"] = True
             st.session_state["api_key"] = login_api_key
             st.session_state["provider"] = login_provider
             st.session_state["model"] = login_model
+            st.rerun()
+
+    st.stop()
+
+# ---------------------------------------------------------------------------
+# STEP 2 — Choose airline
+# ---------------------------------------------------------------------------
+if st.session_state["chunks"] is None:
+    st.title("✈️ Simulado ANAC")
+    st.subheader("🛫 Escolha a Companhia Aérea")
+
+    st.markdown(
+        f"<span style='color:#22c55e;font-size:16px'>●</span> "
+        f"Conectado via **{st.session_state['provider']}** — {st.session_state['model']}",
+        unsafe_allow_html=True,
+    )
+
+    st.divider()
+
+    airline = st.selectbox("Companhia", options=list(AIRLINE_TO_DIR.keys()), key="login_airline")
+
+    if st.button("Carregar manual e iniciar", type="primary", use_container_width=True):
+        with st.spinner(f"Carregando manual da {airline}..."):
+            chunks = load_chunks(airline)
+        if not chunks:
+            st.error(f"Nenhum chunk encontrado para {airline}.")
+        else:
+            st.session_state["chunks"] = chunks
+            st.session_state["airline"] = airline
             st.rerun()
 
     st.stop()
@@ -227,28 +256,6 @@ def _change_airline():
     st.session_state["topic_filter"] = ""
     _reset_question()
 
-
-# ---------------------------------------------------------------------------
-# STATE 1 — Setup: choose airline
-# ---------------------------------------------------------------------------
-if st.session_state["chunks"] is None:
-    st.title("✈️ Simulado ANAC — Comissários de Voo")
-    st.write("Selecione a companhia aérea para carregar o manual.")
-
-    airline = st.selectbox("Companhia", options=list(AIRLINE_TO_DIR.keys()))
-
-    if st.button("Carregar manual", type="primary"):
-        with st.spinner(f"Carregando chunks de {airline}..."):
-            chunks = load_chunks(airline)
-        if not chunks:
-            st.error(f"Nenhum chunk encontrado para {airline}.")
-        else:
-            st.session_state["chunks"] = chunks
-            st.session_state["airline"] = airline
-            st.success(f"{len(chunks)} trechos carregados.")
-            st.rerun()
-
-    st.stop()
 
 # ---------------------------------------------------------------------------
 # From here on, chunks are loaded.
