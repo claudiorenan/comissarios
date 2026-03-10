@@ -1,6 +1,7 @@
 """Simulado ANAC — Comissarios de Voo (Streamlit app)."""
 
 import base64
+import html
 import os
 from pathlib import Path
 
@@ -545,7 +546,7 @@ _defaults = {
     "api_key": "",
     "provider": "",
     "model": "",
-    "api_tested": False,
+
     "chunks": None,
     "airline": None,
     "current_question": None,
@@ -565,7 +566,7 @@ for k, v in _defaults.items():
 # ---------------------------------------------------------------------------
 # LOGIN GATE — password + API key + test
 # ---------------------------------------------------------------------------
-APP_PASSWORD = "12345678"
+APP_PASSWORD = os.getenv("APP_PASSWORD", "12345678")
 
 if not st.session_state["authenticated"]:
 
@@ -987,12 +988,12 @@ if not st.session_state["answered"]:
     st.markdown(f"""
     <div class="question-card">
         <div style="color:#d4af37;font-size:0.8em;font-weight:600;letter-spacing:2px;margin-bottom:12px">QUESTAO</div>
-        <div class="question-text">{question["pergunta"]}</div>
+        <div class="question-text">{html.escape(question["pergunta"])}</div>
     </div>
     """, unsafe_allow_html=True)
     _show_media()
 
-    options = [f"{k}) {v}" for k, v in alts.items()]
+    options = [f"{k}) {html.escape(v)}" for k, v in alts.items()]
     choice = st.radio("Escolha uma alternativa:", options, index=None, label_visibility="collapsed")
 
     if st.button("Confirmar resposta", type="primary"):
@@ -1021,26 +1022,27 @@ is_correct = selected == correct_letter
 st.markdown(f"""
 <div class="question-card">
     <div style="color:#d4af37;font-size:0.8em;font-weight:600;letter-spacing:2px;margin-bottom:12px">RESULTADO</div>
-    <div class="question-text">{question["pergunta"]}</div>
+    <div class="question-text">{html.escape(question["pergunta"])}</div>
 </div>
 """, unsafe_allow_html=True)
 _show_media()
 
 # Show alternatives with aviation-themed color coding
 for letter, text in alts.items():
+    _safe_text = html.escape(text)
     if letter == correct_letter:
         st.markdown(
-            f'<div class="answer-correct"><strong>{letter})</strong> {text} ✅</div>',
+            f'<div class="answer-correct"><strong>{letter})</strong> {_safe_text} ✅</div>',
             unsafe_allow_html=True,
         )
     elif letter == selected and not is_correct:
         st.markdown(
-            f'<div class="answer-wrong"><strong>{letter})</strong> {text} ❌</div>',
+            f'<div class="answer-wrong"><strong>{letter})</strong> {_safe_text} ❌</div>',
             unsafe_allow_html=True,
         )
     else:
         st.markdown(
-            f'<div class="answer-neutral"><strong>{letter})</strong> {text}</div>',
+            f'<div class="answer-neutral"><strong>{letter})</strong> {_safe_text}</div>',
             unsafe_allow_html=True,
         )
 

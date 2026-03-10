@@ -52,6 +52,8 @@ def parse_chunk(filepath: Path) -> Chunk | None:
         return None
 
     meta = yaml.safe_load(parts[1])
+    if not isinstance(meta, dict):
+        return None
     body = parts[2].strip()
 
     if len(body) < 150:
@@ -101,6 +103,8 @@ def filter_chunks(chunks: list[Chunk], topic: str) -> list[Chunk]:
 
 def pick_random_chunk(chunks: list[Chunk]) -> Chunk:
     """Pick a random chunk, preferring those with more than 300 chars."""
+    if not chunks:
+        raise ValueError("Nenhum chunk disponivel para gerar questao")
     long_chunks = [c for c in chunks if len(c.content) > 300]
     pool = long_chunks if long_chunks else chunks
     return random.choice(pool)

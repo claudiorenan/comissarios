@@ -6,6 +6,7 @@ output/chapters/
 
 # Secrets
 .env
+.streamlit/secrets.toml
 
 # Python
 __pycache__/
