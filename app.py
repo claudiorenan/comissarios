@@ -453,7 +453,7 @@ if not st.session_state["authenticated"]:
 
     st.markdown('<div class="cockpit-divider"></div>', unsafe_allow_html=True)
 
-    # Default provider/model/key from env or secrets
+    # Default provider/model/key — login só pede senha
     _default_provider = "DeepSeek"
     _default_model = PROVIDERS[_default_provider]["models"][0]
     _env_key_name = PROVIDERS[_default_provider]["env_key"]
@@ -464,33 +464,12 @@ if not st.session_state["authenticated"]:
         except (KeyError, FileNotFoundError):
             _server_api_key = ""
 
-    # Se não há key no servidor, permitir que o usuário informe
-    if not _server_api_key:
-        st.markdown('<div class="cockpit-divider"></div>', unsafe_allow_html=True)
-        st.markdown(
-            '<div class="aviation-card"><div class="card-title">🔑 API Key</div>',
-            unsafe_allow_html=True,
-        )
-        _user_api_key = st.text_input(
-            "DeepSeek API Key",
-            type="password",
-            placeholder="sk-...",
-            help="Obtenha sua key em platform.deepseek.com",
-        )
-        st.markdown('</div>', unsafe_allow_html=True)
-    else:
-        _user_api_key = ""
-
-    _final_api_key = _server_api_key or _user_api_key
-
     if st.button("Entrar", type="primary", use_container_width=True):
         if password != APP_PASSWORD:
             st.error("Senha incorreta.")
-        elif not _final_api_key:
-            st.error("Informe a API Key do DeepSeek.")
         else:
             st.session_state["authenticated"] = True
-            st.session_state["api_key"] = _final_api_key
+            st.session_state["api_key"] = _server_api_key  # pode ser "" — será pedida depois
             st.session_state["provider"] = _default_provider
             st.session_state["model"] = _default_model
             st.rerun()
@@ -548,15 +527,39 @@ if st.session_state["chunks"] is None:
 
     airline = st.selectbox("Companhia Aerea", options=list(AIRLINE_TO_DIR.keys()), key="login_airline")
 
+    # Se não há API key configurada, pedir ao usuário
+    if not st.session_state.get("api_key"):
+        st.markdown('<div class="cockpit-divider"></div>', unsafe_allow_html=True)
+        st.markdown(
+            '<div class="aviation-card"><div class="card-title">🔑 API Key (DeepSeek)</div>',
+            unsafe_allow_html=True,
+        )
+        _user_key = st.text_input(
+            "Informe sua DeepSeek API Key",
+            type="password",
+            placeholder="sk-...",
+            help="Obtenha em platform.deepseek.com",
+        )
+        st.markdown('</div>', unsafe_allow_html=True)
+    else:
+        _user_key = ""
+
     if st.button("Iniciar Simulado", type="primary", use_container_width=True):
-        with st.spinner(f"Carregando manual da {airline}..."):
-            chunks = load_chunks(airline)
-        if not chunks:
-            st.error(f"Nenhum chunk encontrado para {airline}.")
+        # Salvar key do usuário se fornecida
+        if _user_key:
+            st.session_state["api_key"] = _user_key
+
+        if not st.session_state.get("api_key"):
+            st.error("Informe a API Key do DeepSeek para continuar.")
         else:
-            st.session_state["chunks"] = chunks
-            st.session_state["airline"] = airline
-            st.rerun()
+            with st.spinner(f"Carregando manual da {airline}..."):
+                chunks = load_chunks(airline)
+            if not chunks:
+                st.error(f"Nenhum chunk encontrado para {airline}.")
+            else:
+                st.session_state["chunks"] = chunks
+                st.session_state["airline"] = airline
+                st.rerun()
 
     st.markdown("""
     <div class="footer-badge">
