@@ -565,37 +565,51 @@ with st.sidebar:
 
     st.markdown('<div class="cockpit-divider"></div>', unsafe_allow_html=True)
 
-    st.markdown('<div class="card-title" style="font-size:0.9em;color:#d4af37">🎨 Midia (Google AI)</div>', unsafe_allow_html=True)
-    enable_image = st.checkbox("Gerar imagem (Imagen)", value=False)
-    enable_video = st.checkbox("Gerar video (Veo 3)", value=False)
+    with st.expander("🎨 Conteudo Avancado — Midia com IA"):
+        st.markdown("""
+        <div style="color:#8899aa;font-size:0.82em;line-height:1.6;margin-bottom:12px">
+            <strong style="color:#d4af37">Imagen</strong> — Gera uma ilustracao educacional
+            relacionada ao tema da questao (ex: procedimento de evacuacao,
+            equipamentos de seguranca).<br><br>
+            <strong style="color:#d4af37">Veo 3</strong> — Gera um video curto (5s)
+            mostrando uma cena de aviacao civil relacionada ao tema.<br><br>
+            Ambos usam a <strong>API do Google AI</strong> e requerem uma
+            <strong>GEMINI_API_KEY</strong>. Se o provedor ja for Google Gemini,
+            a mesma chave e reutilizada. Sao opcionais — o quiz funciona
+            normalmente sem eles.
+        </div>
+        """, unsafe_allow_html=True)
 
-    # Gemini key for media
-    if enable_image or enable_video:
-        if provider == "Google Gemini":
-            gemini_key = st.session_state["api_key"]
+        enable_image = st.checkbox("Gerar imagem (Imagen)", value=False)
+        enable_video = st.checkbox("Gerar video (Veo 3)", value=False)
+
+        # Gemini key for media
+        if enable_image or enable_video:
+            if provider == "Google Gemini":
+                gemini_key = st.session_state["api_key"]
+            else:
+                gemini_env = os.getenv("GEMINI_API_KEY", "")
+                gemini_key = st.text_input(
+                    "GEMINI_API_KEY (para midia)",
+                    value=gemini_env,
+                    type="password",
+                )
+
+            imagen_model = st.selectbox(
+                "Modelo Imagen",
+                options=["imagen-3.0-generate-002", "imagen-4.0-generate-001"],
+                index=0,
+            ) if enable_image else None
+
+            veo_model = st.selectbox(
+                "Modelo Veo",
+                options=["veo-3.0-fast-generate-001", "veo-3.1-generate-preview"],
+                index=0,
+            ) if enable_video else None
         else:
-            gemini_env = os.getenv("GEMINI_API_KEY", "")
-            gemini_key = st.text_input(
-                "GEMINI_API_KEY (para midia)",
-                value=gemini_env,
-                type="password",
-            )
-
-        imagen_model = st.selectbox(
-            "Modelo Imagen",
-            options=["imagen-3.0-generate-002", "imagen-4.0-generate-001"],
-            index=0,
-        ) if enable_image else None
-
-        veo_model = st.selectbox(
-            "Modelo Veo",
-            options=["veo-3.0-fast-generate-001", "veo-3.1-generate-preview"],
-            index=0,
-        ) if enable_video else None
-    else:
-        gemini_key = ""
-        imagen_model = None
-        veo_model = None
+            gemini_key = ""
+            imagen_model = None
+            veo_model = None
 
     st.markdown('<div class="cockpit-divider"></div>', unsafe_allow_html=True)
 
