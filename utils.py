@@ -148,6 +148,13 @@ REQUIRED_KEYS = {"pergunta", "alternativas", "resposta_correta", "explicacao"}
 # ---------------------------------------------------------------------------
 
 PROVIDERS: dict[str, dict] = {
+    "DeepSeek": {
+        "env_key": "DEEPSEEK_API_KEY",
+        "models": [
+            "deepseek-chat",
+            "deepseek-reasoner",
+        ],
+    },
     "Anthropic": {
         "env_key": "ANTHROPIC_API_KEY",
         "models": [
@@ -171,13 +178,6 @@ PROVIDERS: dict[str, dict] = {
             "gemini-2.0-flash",
             "gemini-2.5-flash-preview-05-20",
             "gemini-2.5-pro-preview-05-06",
-        ],
-    },
-    "DeepSeek": {
-        "env_key": "DEEPSEEK_API_KEY",
-        "models": [
-            "deepseek-chat",
-            "deepseek-reasoner",
         ],
     },
 }
