@@ -415,10 +415,127 @@ section[data-testid="stSidebar"] .stMarkdown {
     color: #4a5568;
     letter-spacing: 1px;
 }
+
+/* ==================== MOBILE RESPONSIVE ==================== */
+@media (max-width: 768px) {
+    /* Make main content use full width */
+    .main .block-container {
+        padding: 0.5rem 0.8rem !important;
+        max-width: 100% !important;
+    }
+
+    /* Hero banner compact */
+    .hero-banner {
+        padding: 20px 10px !important;
+        margin-bottom: 10px !important;
+    }
+    .hero-title {
+        font-size: 1.4em !important;
+    }
+    .hero-subtitle {
+        font-size: 0.85em !important;
+    }
+    .hero-wings {
+        font-size: 2em !important;
+    }
+
+    /* Cards compact */
+    .aviation-card {
+        padding: 12px !important;
+        margin-bottom: 8px !important;
+    }
+    .card-title {
+        font-size: 0.9em !important;
+    }
+
+    /* Airline cards stack */
+    .airline-card {
+        padding: 12px !important;
+        margin-bottom: 6px !important;
+    }
+    .airline-logo {
+        font-size: 1.5em !important;
+    }
+    .airline-name {
+        font-size: 1em !important;
+    }
+
+    /* Question card */
+    .question-card {
+        padding: 14px !important;
+        font-size: 0.92em !important;
+    }
+
+    /* Score display */
+    .score-display {
+        padding: 10px !important;
+    }
+    .score-number {
+        font-size: 1.8em !important;
+    }
+
+    /* Buttons full width on mobile */
+    .stButton > button {
+        font-size: 0.95em !important;
+        padding: 10px 16px !important;
+    }
+
+    /* Sidebar adjustments */
+    section[data-testid="stSidebar"] {
+        min-width: 240px !important;
+        width: 240px !important;
+    }
+
+    /* Hide cockpit dividers on small screens to save space */
+    .cockpit-divider {
+        margin: 6px 0 !important;
+    }
+
+    /* Selectbox and inputs */
+    .stSelectbox, .stTextInput {
+        font-size: 0.9em !important;
+    }
+
+    /* Expander compact */
+    .streamlit-expanderHeader {
+        font-size: 0.88em !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .main .block-container {
+        padding: 0.3rem 0.5rem !important;
+    }
+    .hero-title {
+        font-size: 1.2em !important;
+    }
+    .hero-banner {
+        padding: 14px 8px !important;
+    }
+    .aviation-card {
+        padding: 10px !important;
+    }
+}
 </style>
 """
 
 st.markdown(AVIATION_CSS, unsafe_allow_html=True)
+
+# PWA meta tags + mobile viewport
+st.markdown("""
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Simulado ANAC">
+<meta name="theme-color" content="#0a1628">
+<link rel="manifest" href="app/static/manifest.json">
+<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✈️</text></svg>">
+<script>
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('app/static/sw.js').catch(() => {});
+}
+</script>
+""", unsafe_allow_html=True)
 
 # ---------------------------------------------------------------------------
 # Session state defaults
