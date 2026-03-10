@@ -67,6 +67,27 @@ with st.sidebar:
         index=0,
     )
 
+    if st.button("🔌 Testar API"):
+        if not api_key:
+            st.warning("Informe a API Key primeiro.")
+        else:
+            with st.spinner("Testando conexão..."):
+                try:
+                    from utils import _PROVIDER_CALLERS
+                    caller = _PROVIDER_CALLERS[provider]
+                    caller(api_key, model, "Responda apenas: OK")
+                    st.markdown(
+                        "<span style='color:#22c55e;font-size:24px'>●</span> "
+                        "<strong>Conexão OK!</strong>",
+                        unsafe_allow_html=True,
+                    )
+                except Exception as e:
+                    st.markdown(
+                        "<span style='color:#ef4444;font-size:24px'>●</span> "
+                        f"<strong>Erro:</strong> {e}",
+                        unsafe_allow_html=True,
+                    )
+
     st.divider()
     st.subheader("🎨 Mídia (Google AI)")
 
