@@ -134,7 +134,7 @@ Formato JSON obrigatório:
     "D": "texto alternativa D"
   }},
   "resposta_correta": "A",
-  "explicacao": "explicação breve de por que a resposta está correta"
+  "explicacao": "explicação fundamentada citando o trecho do manual que sustenta a resposta correta, em linguagem técnica formal"
 }}
 
 --- TRECHO DO MANUAL ---

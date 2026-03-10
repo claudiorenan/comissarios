@@ -1051,16 +1051,35 @@ if is_correct:
 else:
     st.error(f"Resposta correta: **{correct_letter}) {alts[correct_letter]}**")
 
-# Explanation + reference
-with st.expander("📖 Explicacao e referencia"):
+# Explanation + reference (ABNT NBR 6023)
+with st.expander("Explicacao e Referencia"):
     st.write(question["explicacao"])
     st.markdown('<div class="cockpit-divider"></div>', unsafe_allow_html=True)
+
+    # Build ABNT reference: EMPRESA. Titulo. Cap. X: Secao, p. XX-XX.
+    _empresa_upper = chunk.empresa.upper() if chunk.empresa else "N/D"
+    _fonte = chunk.fonte if chunk.fonte else "Manual de Comissarios"
+    _cap = f"Cap. {chunk.capitulo}" if chunk.capitulo else ""
+    _secao = f": {chunk.secao_titulo}" if chunk.secao_titulo else ""
+    _pag = f", p. {chunk.paginas}" if chunk.paginas else ""
+    _ref_abnt = f"{_empresa_upper}. <em>{_fonte}</em>. {_cap}{_secao}{_pag}."
+
     st.markdown(f"""
-    <div style="color:#8899aa;font-size:0.85em">
-        <strong style="color:#d4af37">Fonte:</strong> {chunk.fonte}<br>
-        <strong style="color:#d4af37">Capitulo:</strong> {chunk.capitulo}<br>
-        <strong style="color:#d4af37">Secao:</strong> {chunk.secao_titulo}<br>
-        <strong style="color:#d4af37">Paginas:</strong> {chunk.paginas}
+    <div style="
+        color:#c8d6e5;
+        font-size:0.85em;
+        font-family:'Inter',sans-serif;
+        background:rgba(10,22,40,0.6);
+        border-left:3px solid #d4af37;
+        padding:12px 14px;
+        margin-top:8px;
+        border-radius:0 6px 6px 0;
+        line-height:1.7;
+    ">
+        <strong style="color:#d4af37;font-size:0.8em;letter-spacing:0.5px;text-transform:uppercase">
+            Referencia (ABNT NBR 6023)
+        </strong><br>
+        {_ref_abnt}
     </div>
     """, unsafe_allow_html=True)
 
