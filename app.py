@@ -97,6 +97,11 @@ header[data-testid="stHeader"] {
     backdrop-filter: blur(10px);
 }
 
+/* Hide toolbar buttons (Share, GitHub, star, edit pencil) */
+[data-testid="stToolbar"] {
+    display: none !important;
+}
+
 /* Sidebar */
 section[data-testid="stSidebar"] {
     background: linear-gradient(180deg, #0d1b2e 0%, #162a45 100%);
