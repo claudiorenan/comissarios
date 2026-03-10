@@ -620,17 +620,17 @@ with st.sidebar:
 
     st.markdown('<div class="cockpit-divider"></div>', unsafe_allow_html=True)
 
-    with st.expander("🎨 Conteudo Avancado — Midia com IA"):
+    with st.expander("🎨 Conteúdo Avançado ➡ Mídia com IA"):
         st.markdown("""
         <div style="color:#8899aa;font-size:0.82em;line-height:1.6;margin-bottom:12px">
-            <strong style="color:#d4af37">Imagen</strong> — Gera uma ilustracao educacional
-            relacionada ao tema da questao (ex: procedimento de evacuacao,
-            equipamentos de seguranca).<br><br>
-            <strong style="color:#d4af37">Veo 3</strong> — Gera um video curto (5s)
-            mostrando uma cena de aviacao civil relacionada ao tema.<br><br>
+            <strong style="color:#d4af37">Imagen</strong> — Gera uma ilustração educacional
+            relacionada ao tema da questão (ex: procedimento de evacuação,
+            equipamentos de segurança).<br><br>
+            <strong style="color:#d4af37">Veo 3</strong> — Gera um vídeo curto (5s)
+            mostrando uma cena de aviação civil relacionada ao tema.<br><br>
             Ambos usam a <strong>API do Google AI</strong> e requerem uma
-            <strong>GEMINI_API_KEY</strong>. Se o provedor ja for Google Gemini,
-            a mesma chave e reutilizada. Sao opcionais — o quiz funciona
+            <strong>GEMINI_API_KEY</strong>. Se o provedor já for Google Gemini,
+            a mesma chave é reutilizada. São opcionais — o quiz funciona
             normalmente sem eles.
         </div>
         """, unsafe_allow_html=True)
