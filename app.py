@@ -456,7 +456,8 @@ if not st.session_state["authenticated"]:
     # Default provider/model/key from env — no user input needed
     _default_provider = "DeepSeek"
     _default_model = PROVIDERS[_default_provider]["models"][0]
-    _default_api_key = os.getenv(PROVIDERS[_default_provider]["env_key"], "")
+    _env_key_name = PROVIDERS[_default_provider]["env_key"]
+    _default_api_key = os.getenv(_env_key_name, "") or st.secrets.get(_env_key_name, "")
 
     if st.button("Entrar", type="primary", use_container_width=True):
         if password != APP_PASSWORD:
