@@ -453,25 +453,44 @@ if not st.session_state["authenticated"]:
 
     st.markdown('<div class="cockpit-divider"></div>', unsafe_allow_html=True)
 
-    # Default provider/model/key from env — no user input needed
+    # Default provider/model/key from env or secrets
     _default_provider = "DeepSeek"
     _default_model = PROVIDERS[_default_provider]["models"][0]
     _env_key_name = PROVIDERS[_default_provider]["env_key"]
-    _default_api_key = os.getenv(_env_key_name, "")
-    if not _default_api_key:
+    _server_api_key = os.getenv(_env_key_name, "")
+    if not _server_api_key:
         try:
-            _default_api_key = st.secrets[_env_key_name]
+            _server_api_key = st.secrets[_env_key_name]
         except (KeyError, FileNotFoundError):
-            _default_api_key = ""
+            _server_api_key = ""
+
+    # Se não há key no servidor, permitir que o usuário informe
+    if not _server_api_key:
+        st.markdown('<div class="cockpit-divider"></div>', unsafe_allow_html=True)
+        st.markdown(
+            '<div class="aviation-card"><div class="card-title">🔑 API Key</div>',
+            unsafe_allow_html=True,
+        )
+        _user_api_key = st.text_input(
+            "DeepSeek API Key",
+            type="password",
+            placeholder="sk-...",
+            help="Obtenha sua key em platform.deepseek.com",
+        )
+        st.markdown('</div>', unsafe_allow_html=True)
+    else:
+        _user_api_key = ""
+
+    _final_api_key = _server_api_key or _user_api_key
 
     if st.button("Entrar", type="primary", use_container_width=True):
         if password != APP_PASSWORD:
             st.error("Senha incorreta.")
-        elif not _default_api_key:
-            st.error("API Key do DeepSeek não configurada no servidor.")
+        elif not _final_api_key:
+            st.error("Informe a API Key do DeepSeek.")
         else:
             st.session_state["authenticated"] = True
-            st.session_state["api_key"] = _default_api_key
+            st.session_state["api_key"] = _final_api_key
             st.session_state["provider"] = _default_provider
             st.session_state["model"] = _default_model
             st.rerun()
