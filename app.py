@@ -453,73 +453,21 @@ if not st.session_state["authenticated"]:
 
     st.markdown('<div class="cockpit-divider"></div>', unsafe_allow_html=True)
 
-    st.markdown('<div class="aviation-card"><div class="card-title">🔑 Configuracao da IA</div>', unsafe_allow_html=True)
+    # Default provider/model/key from env — no user input needed
+    _default_provider = "DeepSeek"
+    _default_model = PROVIDERS[_default_provider]["models"][0]
+    _default_api_key = os.getenv(PROVIDERS[_default_provider]["env_key"], "")
 
-    login_provider = st.selectbox("Provedor", options=list(PROVIDERS.keys()), key="login_provider")
-    login_prov_info = PROVIDERS[login_provider]
-
-    login_env_key = os.getenv(login_prov_info["env_key"], "")
-    login_api_key = st.text_input(
-        f"API Key ({login_provider})",
-        value=login_env_key,
-        type="password",
-        key="login_api_key",
-        help=f"Preencha aqui ou defina {login_prov_info['env_key']} no .env",
-    )
-
-    login_model = st.selectbox(
-        "Modelo",
-        options=login_prov_info["models"],
-        index=0,
-        key="login_model",
-    )
-
-    # API test button
-    col_test, col_status = st.columns([1, 2])
-    with col_test:
-        test_clicked = st.button("🔌 Testar Conexao")
-    with col_status:
-        if test_clicked:
-            if not login_api_key:
-                st.warning("Informe a API Key.")
-            else:
-                with st.spinner("Verificando conexao..."):
-                    try:
-                        from utils import _PROVIDER_CALLERS
-                        caller = _PROVIDER_CALLERS[login_provider]
-                        caller(login_api_key, login_model, "Responda apenas: OK")
-                        st.markdown(
-                            '<div class="status-connected">'
-                            '<span style="font-size:18px">●</span> Conexao OK'
-                            '</div>',
-                            unsafe_allow_html=True,
-                        )
-                        st.session_state["api_tested"] = True
-                    except Exception as e:
-                        st.markdown(
-                            f"<span style='color:#ef4444;font-size:24px'>●</span> "
-                            f"<strong style='color:#fca5a5'>Erro:</strong> "
-                            f"<span style='color:#94a3b8'>{e}</span>",
-                            unsafe_allow_html=True,
-                        )
-                        st.session_state["api_tested"] = False
-
-    st.markdown('</div>', unsafe_allow_html=True)
-
-    st.markdown('<div class="cockpit-divider"></div>', unsafe_allow_html=True)
-
-    if st.button("Avancar", type="primary", use_container_width=True):
+    if st.button("Entrar", type="primary", use_container_width=True):
         if password != APP_PASSWORD:
             st.error("Senha incorreta.")
-        elif not login_api_key:
-            st.error("Informe a API Key.")
-        elif not st.session_state["api_tested"]:
-            st.warning("Teste a API antes de avancar.")
+        elif not _default_api_key:
+            st.error("API Key do DeepSeek não configurada no servidor.")
         else:
             st.session_state["authenticated"] = True
-            st.session_state["api_key"] = login_api_key
-            st.session_state["provider"] = login_provider
-            st.session_state["model"] = login_model
+            st.session_state["api_key"] = _default_api_key
+            st.session_state["provider"] = _default_provider
+            st.session_state["model"] = _default_model
             st.rerun()
 
     st.markdown("""
