@@ -173,6 +173,13 @@ PROVIDERS: dict[str, dict] = {
             "gemini-2.5-pro-preview-05-06",
         ],
     },
+    "DeepSeek": {
+        "env_key": "DEEPSEEK_API_KEY",
+        "models": [
+            "deepseek-chat",
+            "deepseek-reasoner",
+        ],
+    },
 }
 
 
@@ -208,10 +215,22 @@ def _call_gemini(api_key: str, model: str, prompt: str) -> str:
     return response.text.strip()
 
 
+def _call_deepseek(api_key: str, model: str, prompt: str) -> str:
+    import openai
+    client = openai.OpenAI(api_key=api_key, base_url="https://api.deepseek.com")
+    response = client.chat.completions.create(
+        model=model,
+        max_tokens=1024,
+        messages=[{"role": "user", "content": prompt}],
+    )
+    return response.choices[0].message.content.strip()
+
+
 _PROVIDER_CALLERS = {
     "Anthropic": _call_anthropic,
     "OpenAI": _call_openai,
     "Google Gemini": _call_gemini,
+    "DeepSeek": _call_deepseek,
 }
 
 
