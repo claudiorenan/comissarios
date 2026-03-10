@@ -102,6 +102,19 @@ header[data-testid="stHeader"] {
     display: none !important;
 }
 
+/* Hide sidebar collapse arrow text artifacts */
+[data-testid="stSidebar"] [data-testid="stSidebarCollapsedControl"] {
+    display: none !important;
+}
+button[kind="headerNoPadding"] {
+    display: none !important;
+}
+
+/* Hide deploy button */
+[data-testid="stDeployButton"] {
+    display: none !important;
+}
+
 /* Sidebar */
 section[data-testid="stSidebar"] {
     background: linear-gradient(180deg, #0d1b2e 0%, #162a45 100%);
@@ -601,7 +614,7 @@ with st.sidebar:
 
     st.markdown('<div class="cockpit-divider"></div>', unsafe_allow_html=True)
 
-    with st.expander("🎨 Conteúdo Avançado ➡ Mídia com IA"):
+    with st.expander("Midia com IA (Conteudo Avancado)"):
         st.markdown("""
         <div style="color:#8899aa;font-size:0.82em;line-height:1.6;margin-bottom:12px">
             <strong style="color:#d4af37">Imagen</strong> — Gera uma ilustração educacional
