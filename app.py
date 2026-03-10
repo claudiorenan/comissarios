@@ -457,7 +457,12 @@ if not st.session_state["authenticated"]:
     _default_provider = "DeepSeek"
     _default_model = PROVIDERS[_default_provider]["models"][0]
     _env_key_name = PROVIDERS[_default_provider]["env_key"]
-    _default_api_key = os.getenv(_env_key_name, "") or st.secrets.get(_env_key_name, "")
+    _default_api_key = os.getenv(_env_key_name, "")
+    if not _default_api_key:
+        try:
+            _default_api_key = st.secrets[_env_key_name]
+        except (KeyError, FileNotFoundError):
+            _default_api_key = ""
 
     if st.button("Entrar", type="primary", use_container_width=True):
         if password != APP_PASSWORD:
