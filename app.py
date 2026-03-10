@@ -28,6 +28,11 @@ st.set_page_config(page_title="Simulado ANAC", page_icon="✈️", layout="cente
 # Session state defaults
 # ---------------------------------------------------------------------------
 _defaults = {
+    "authenticated": False,
+    "api_key": "",
+    "provider": "",
+    "model": "",
+    "api_tested": False,
     "chunks": None,
     "airline": None,
     "current_question": None,
@@ -45,48 +50,101 @@ for k, v in _defaults.items():
         st.session_state[k] = v
 
 # ---------------------------------------------------------------------------
+# LOGIN GATE — password + API key + test
+# ---------------------------------------------------------------------------
+APP_PASSWORD = "12345678"
+
+if not st.session_state["authenticated"]:
+    st.title("✈️ Simulado ANAC")
+    st.subheader("🔐 Acesso")
+
+    password = st.text_input("Senha de acesso", type="password", placeholder="Digite a senha")
+
+    st.divider()
+    st.subheader("🔑 Configuração da API")
+
+    login_provider = st.selectbox("Provedor", options=list(PROVIDERS.keys()), key="login_provider")
+    login_prov_info = PROVIDERS[login_provider]
+
+    login_env_key = os.getenv(login_prov_info["env_key"], "")
+    login_api_key = st.text_input(
+        f"API Key ({login_provider})",
+        value=login_env_key,
+        type="password",
+        key="login_api_key",
+        help=f"Preencha aqui ou defina {login_prov_info['env_key']} no .env",
+    )
+
+    login_model = st.selectbox(
+        "Modelo",
+        options=login_prov_info["models"],
+        index=0,
+        key="login_model",
+    )
+
+    # API test button
+    col_test, col_status = st.columns([1, 2])
+    with col_test:
+        test_clicked = st.button("🔌 Testar API")
+    with col_status:
+        if test_clicked:
+            if not login_api_key:
+                st.warning("Informe a API Key.")
+            else:
+                with st.spinner("Testando..."):
+                    try:
+                        from utils import _PROVIDER_CALLERS
+                        caller = _PROVIDER_CALLERS[login_provider]
+                        caller(login_api_key, login_model, "Responda apenas: OK")
+                        st.markdown(
+                            "<span style='color:#22c55e;font-size:28px'>●</span> "
+                            "<strong>Conexão OK!</strong>",
+                            unsafe_allow_html=True,
+                        )
+                        st.session_state["api_tested"] = True
+                    except Exception as e:
+                        st.markdown(
+                            "<span style='color:#ef4444;font-size:28px'>●</span> "
+                            f"<strong>Erro:</strong> {e}",
+                            unsafe_allow_html=True,
+                        )
+                        st.session_state["api_tested"] = False
+
+    st.divider()
+
+    if st.button("Entrar", type="primary", use_container_width=True):
+        if password != APP_PASSWORD:
+            st.error("Senha incorreta.")
+        elif not login_api_key:
+            st.error("Informe a API Key.")
+        elif not st.session_state["api_tested"]:
+            st.warning("Teste a API antes de entrar.")
+        else:
+            st.session_state["authenticated"] = True
+            st.session_state["api_key"] = login_api_key
+            st.session_state["provider"] = login_provider
+            st.session_state["model"] = login_model
+            st.rerun()
+
+    st.stop()
+
+# ---------------------------------------------------------------------------
+# Authenticated — recover saved config
+# ---------------------------------------------------------------------------
+provider = st.session_state["provider"]
+prov_info = PROVIDERS[provider]
+api_key = st.session_state["api_key"]
+model = st.session_state["model"]
+
+# ---------------------------------------------------------------------------
 # Sidebar
 # ---------------------------------------------------------------------------
 with st.sidebar:
     st.header("⚙️ Configurações")
 
-    provider = st.selectbox("Provedor", options=list(PROVIDERS.keys()))
-    prov_info = PROVIDERS[provider]
-
-    env_key = os.getenv(prov_info["env_key"], "")
-    api_key = st.text_input(
-        f"API Key ({provider})",
-        value=env_key,
-        type="password",
-        help=f"Preencha aqui ou defina {prov_info['env_key']} no .env",
-    )
-
-    model = st.selectbox(
-        "Modelo",
-        options=prov_info["models"],
-        index=0,
-    )
-
-    if st.button("🔌 Testar API"):
-        if not api_key:
-            st.warning("Informe a API Key primeiro.")
-        else:
-            with st.spinner("Testando conexão..."):
-                try:
-                    from utils import _PROVIDER_CALLERS
-                    caller = _PROVIDER_CALLERS[provider]
-                    caller(api_key, model, "Responda apenas: OK")
-                    st.markdown(
-                        "<span style='color:#22c55e;font-size:24px'>●</span> "
-                        "<strong>Conexão OK!</strong>",
-                        unsafe_allow_html=True,
-                    )
-                except Exception as e:
-                    st.markdown(
-                        "<span style='color:#ef4444;font-size:24px'>●</span> "
-                        f"<strong>Erro:</strong> {e}",
-                        unsafe_allow_html=True,
-                    )
+    st.markdown(f"**Provedor:** {provider}")
+    st.markdown(f"**Modelo:** {model}")
+    st.caption("🔐 API configurada no login")
 
     st.divider()
     st.subheader("🎨 Mídia (Google AI)")
@@ -97,7 +155,7 @@ with st.sidebar:
     # Gemini key for media — reuse if provider is already Google Gemini
     if enable_image or enable_video:
         if provider == "Google Gemini":
-            gemini_key = api_key
+            gemini_key = st.session_state["api_key"]
         else:
             gemini_env = os.getenv("GEMINI_API_KEY", "")
             gemini_key = st.text_input(
