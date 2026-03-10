@@ -1,6 +1,8 @@
 """Simulado ANAC — Comissarios de Voo (Streamlit app)."""
 
+import base64
 import os
+from pathlib import Path
 
 import streamlit as st
 from dotenv import load_dotenv
@@ -18,6 +20,59 @@ from utils import (
 )
 
 load_dotenv()
+
+# ---------------------------------------------------------------------------
+# Theme → background image mapping
+# ---------------------------------------------------------------------------
+BACKGROUNDS_DIR = Path(__file__).resolve().parent / "assets" / "backgrounds"
+
+_THEME_TO_BG = {
+    "Safety": "safety.jpg",
+    "Security": "security.jpg",
+    "Equipamentos de Emerg\u00eancia": "emergency.jpg",
+    "PROCEDIMENTOS DE EMERG\u00caNCIA": "emergency.jpg",
+    "Procedimentos de Emerg\u00eancia": "emergency.jpg",
+    "Procedimentos Anormais &": "emergency.jpg",
+    "PRIMEIROS SOCORROS": "first_aid.jpg",
+    "Primeiros Socorros": "first_aid.jpg",
+    "Sa\u00fade Aeroespacial e Primeiros Socorros": "first_aid.jpg",
+    "Airbus 320 Family": "aircraft.jpg",
+    "Boeing 777": "aircraft.jpg",
+    "Boeing 787": "aircraft.jpg",
+    "PROCEDIMENTOS OPERACIONAIS": "operations.jpg",
+    "Standard Operating Procedures": "operations.jpg",
+    "Padroniza\u00e7\u00e3o Operacional": "operations.jpg",
+    "Normas e Procedimentos": "operations.jpg",
+    "SOBREVIV\u00caNCIA": "survival.jpg",
+    "Sobreviv\u00eancia": "survival.jpg",
+    "Sobreviv\u00eancia na Selva, Mar, Deserto e Gelo": "survival.jpg",
+    "Tripula\u00e7\u00e3o de Cabine": "crew.jpg",
+    "APRESENTA\u00c7\u00c3O": "crew.jpg",
+    "Generalidades": "crew.jpg",
+    "Organiza\u00e7\u00e3o da Empresa": "crew.jpg",
+    "COMPOSI\u00c7\u00c3O DO MANUAL": "crew.jpg",
+    "REGULAMENTOS AERON\u00c1UTICOS": "regulations.jpg",
+    "Artigos Perigosos": "dangerous_goods.jpg",
+    "FORMUL\u00c1RIOS": "operations.jpg",
+    "GLOSS\u00c1RIO": "operations.jpg",
+    "\u00cdndice Geral": "default.jpg",
+}
+
+
+@st.cache_data
+def _load_bg_b64(filename: str) -> str | None:
+    """Load a background image as base64 for CSS embedding."""
+    filepath = BACKGROUNDS_DIR / filename
+    if not filepath.exists():
+        return None
+    data = filepath.read_bytes()
+    return base64.b64encode(data).decode()
+
+
+def _get_bg_for_topic(topic: str) -> str | None:
+    """Return base64 background for a topic, or default."""
+    filename = _THEME_TO_BG.get(topic, "default.jpg")
+    return _load_bg_b64(filename)
 
 # ---------------------------------------------------------------------------
 # Page config
@@ -699,6 +754,29 @@ topic_options = ["Todos"] + topics
 selected_topic = st.selectbox("Filtrar por tema", options=topic_options)
 effective_topic = "" if selected_topic == "Todos" else selected_topic
 st.session_state["topic_filter"] = effective_topic
+
+# Dynamic background based on topic or current chunk
+_bg_topic = effective_topic
+if not _bg_topic and st.session_state.get("current_chunk"):
+    _bg_topic = st.session_state["current_chunk"].tema or ""
+_bg_b64 = _get_bg_for_topic(_bg_topic) if _bg_topic else _load_bg_b64("default.jpg")
+
+if _bg_b64:
+    st.markdown(f"""
+    <style>
+    .stApp {{
+        background: linear-gradient(
+            rgba(10, 22, 40, 0.88),
+            rgba(13, 31, 60, 0.92),
+            rgba(10, 22, 40, 0.95)
+        ),
+        url("data:image/jpeg;base64,{_bg_b64}") !important;
+        background-size: cover !important;
+        background-position: center !important;
+        background-attachment: fixed !important;
+    }}
+    </style>
+    """, unsafe_allow_html=True)
 
 col1, col2 = st.columns(2)
 with col1:

@@ -16,6 +16,9 @@ __pycache__/
 .vscode/
 .idea/
 
+# One-time generation scripts
+generate_backgrounds.py
+
 # OS
 Thumbs.db
 .DS_Store
